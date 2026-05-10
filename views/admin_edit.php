@@ -1,66 +1,3 @@
-<?php
-session_start();
-
-// Check if admin is logged in
-if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== true) {
-    header("Location: AdminLogin.php");
-    exit();
-}
-
-require_once 'db.php'; // Include database connection
-
-$msg = "";
-$msgType = "";
-$reservation = null;
-
-// Fetch the existing record to be updated
-if (isset($_GET['id'])) {
-    $edit_id = $_GET['id'];
-    try {
-        $stmt = $pdo->prepare("SELECT * FROM reservations WHERE id = :id");
-        $stmt->bindParam(':id', $edit_id);
-        $stmt->execute();
-        $reservation = $stmt->fetch();
-        
-        if (!$reservation) {
-            die("Record not found.");
-        }
-    } catch(PDOException $e) {
-        die("Database error: " . $e->getMessage());
-    }
-} else {
-    header("Location: AdminDashboard.php");
-    exit();
-}
-
-// Handle Update Submission
-if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update'])) {
-    $id = $_POST['id'];
-    $name = trim($_POST['name']);
-    $contact = trim($_POST['contact']);
-    $status = $_POST['status']; // Just illustrative, but we could update info
-    // For this seatwork requirement, updating the customer name and contact is the easiest way to demonstrate "UPDATE" functionality safely.
-    
-    try {
-        $sql = "UPDATE reservations SET customer_name = :name, contact_number = :contact WHERE id = :id";
-        $stmt = $pdo->prepare($sql);
-        $stmt->bindParam(':name', $name);
-        $stmt->bindParam(':contact', $contact);
-        $stmt->bindParam(':id', $id);
-        
-        if ($stmt->execute()) {
-            $msg = "Reservation updated successfully!";
-            $msgType = "success";
-            // Refresh record
-            $reservation['customer_name'] = $name;
-            $reservation['contact_number'] = $contact;
-        }
-    } catch(PDOException $e) {
-        $msg = "Error updating record: " . $e->getMessage();
-        $msgType = "error";
-    }
-}
-?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -84,16 +21,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update'])) {
 <body>
     <div class="sidebar">
         <div class="brand">Admin<br><span>Lor & Santos Hotel</span></div>
-        <a href="Home.php"><i class="fas fa-home" style="margin-right: 15px;"></i> Back to Website</a>
-        <a href="AdminDashboard.php"><i class="fas fa-arrow-left" style="margin-right: 15px;"></i> Back to Dashboard</a>
+        <a href="index.php?page=home"><i class="fas fa-home" style="margin-right: 15px;"></i> Back to Website</a>
+        <a href="index.php?page=admin_dashboard"><i class="fas fa-arrow-left" style="margin-right: 15px;"></i> Back to Dashboard</a>
         <div style="flex-grow: 1;"></div>
-        <a href="AdminLogout.php" style="color: #fda4af; border-top: 1px solid rgba(255,255,255,0.1);"><i class="fas fa-sign-out-alt" style="margin-right: 15px;"></i> Logout Securely</a>
+        <a href="index.php?page=admin_logout" style="color: #fda4af; border-top: 1px solid rgba(255,255,255,0.1);"><i class="fas fa-sign-out-alt" style="margin-right: 15px;"></i> Logout Securely</a>
     </div>
     
     <div class="main-content">
         <div class="content-area" style="padding: 3rem;">
             
-            <?php if ($msg): ?>
+            <?php if (!empty($msg)): ?>
             <div class="alert alert-<?php echo $msgType; ?> admin-card" style="margin-bottom: 2rem; padding: 1rem 1.5rem;">
                 <?php echo htmlspecialchars($msg); ?>
             </div>
@@ -103,7 +40,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update'])) {
                 <h2 class="section-title">Edit Reservation Data (Update)</h2>
                 <p style="color: var(--text-muted); margin-bottom: 2rem;">Update the core information for reservation ID #<?php echo $reservation['id']; ?>.</p>
                 
-                <form method="POST" action="">
+                <form method="POST" action="index.php?page=admin_edit&id=<?php echo $reservation['id']; ?>">
                     <input type="hidden" name="id" value="<?php echo $reservation['id']; ?>">
                     
                     <div class="form-group">
@@ -129,7 +66,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update'])) {
                         <button type="submit" name="update" class="btn-primary" style="padding: 0.8rem 2rem; border-radius: 8px; border: none; font-size: 1rem; font-weight: 600; cursor: pointer;">
                             <i class="fas fa-save" style="margin-right: 8px;"></i> Update Record
                         </button>
-                        <a href="AdminDashboard.php" class="btn-small" style="background:var(--bg-light); color: var(--text-main); border: 1px solid var(--border); padding: 0.8rem 2rem; display: flex; align-items: center; justify-content: center;">Cancel</a>
+                        <a href="index.php?page=admin_dashboard" class="btn-small" style="background:var(--bg-light); color: var(--text-main); border: 1px solid var(--border); padding: 0.8rem 2rem; display: flex; align-items: center; justify-content: center;">Cancel</a>
                     </div>
                 </form>
             </div>

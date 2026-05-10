@@ -1,50 +1,3 @@
-<?php
-session_start();
-require_once 'db.php';
-
-// If already logged in, redirect to Dashboard
-if (isset($_SESSION['admin_logged_in']) && $_SESSION['admin_logged_in'] === true) {
-    header("Location: AdminDashboard.php");
-    exit();
-}
-
-$error = "";
-
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $username = trim($_POST['username']);
-    $password = trim($_POST['password']);
-    
-    if (empty($username) || empty($password)) {
-        $error = "Please enter both username and password.";
-    } else {
-        try {
-            $stmt = $pdo->prepare("SELECT * FROM admins WHERE username = :username");
-            $stmt->bindParam(':username', $username);
-            $stmt->execute();
-            
-            if ($stmt->rowCount() == 1) {
-                $row = $stmt->fetch();
-                // Simple plain text password check for assignment purposes
-                // If you use hashed passwords, use password_verify($password, $row['password'])
-                if ($password === $row['password']) {
-                    // Password is correct, start a new session
-                    $_SESSION['admin_logged_in'] = true;
-                    $_SESSION['admin_username'] = $username;
-                    
-                    header("Location: AdminDashboard.php");
-                    exit();
-                } else {
-                    $error = "Invalid username or password.";
-                }
-            } else {
-                $error = "Invalid username or password.";
-            }
-        } catch(PDOException $e) {
-            $error = "Database Error: " . $e->getMessage();
-        }
-    }
-}
-?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -88,7 +41,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     </style>
 </head>
 <body>
-    <a href="Home.php" style="position: absolute; top: 2rem; left: 2rem; color: white; text-decoration: none; font-weight: 500;">
+    <a href="index.php?page=home" style="position: absolute; top: 2rem; left: 2rem; color: white; text-decoration: none; font-weight: 500;">
         <i class="fas fa-arrow-left"></i> Back to Hotel Website
     </a>
     
@@ -105,7 +58,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             </div>
         <?php endif; ?>
         
-        <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="POST">
+        <form action="index.php?page=admin_login" method="POST">
             <div class="form-group">
                 <label>Username</label>
                 <div style="position: relative;">
@@ -125,7 +78,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <button type="submit" class="btn-primary" style="width: 100%; padding: 1rem; border-radius: 8px; font-weight: 600; font-size: 1rem; border: none; cursor: pointer;">
                 Login securely <i class="fas fa-sign-in-alt" style="margin-left: 8px;"></i>
             </button>
-            <!-- <p style="text-align:center; color: var(--text-muted); font-size:0.8rem; margin-top:20px;">Use: admin / admin123</p> -->
         </form>
     </div>
 </body>

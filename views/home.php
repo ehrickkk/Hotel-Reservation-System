@@ -1,6 +1,3 @@
-<?php
-session_start();
-?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -11,14 +8,7 @@ session_start();
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-    <div class="sidebar">
-        <div class="brand">Lor & Santos<br><span>Five Star Hotel</span></div>
-        <a href="Home.php" class="active"><i class="fas fa-home" style="margin-right: 15px;"></i> Home</a>
-        <a href="CompanyProfile.php"><i class="fas fa-building" style="margin-right: 15px;"></i> Company's Profile</a>
-        <a href="Reservation.php"><i class="fas fa-calendar-check" style="margin-right: 15px;"></i> Reservation</a>
-        <a href="Contacts.php"><i class="fas fa-envelope" style="margin-right: 15px;"></i> Contacts</a>
-        <a href="AdminLogin.php"><i class="fas fa-cog" style="margin-right: 15px;"></i> Admin Panel</a>
-    </div>
+    <?php require_once 'views/partials/sidebar.php'; ?>
     
     <div class="main-content">
         <div class="header">
@@ -33,7 +23,7 @@ session_start();
                 <div class="hero-content">
                     <h2>Experience True Luxury</h2>
                     <p>Discover comfort, elegance, and world-class service in the heart of the city. Your unforgettable stay begins here.</p>
-                    <a href="Reservation.php" class="cta-button">Book Your Stay Now <i class="fas fa-arrow-right" style="margin-left:8px;"></i></a>
+                    <a href="index.php?page=reservation" class="cta-button">Book Your Stay Now <i class="fas fa-arrow-right" style="margin-left:8px;"></i></a>
                 </div>
             </div>
             

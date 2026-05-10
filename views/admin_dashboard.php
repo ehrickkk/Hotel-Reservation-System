@@ -1,41 +1,7 @@
 <?php
-session_start();
-
-// Check if admin is logged in
-if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== true) {
-    header("Location: AdminLogin.php");
-    exit();
-}
-
-require_once 'db.php'; // Include database connection
-
-$msg = "";
-$msgType = "";
-
-// Handle Deletion
-if (isset($_GET['delete'])) {
-    $delete_id = $_GET['delete'];
-    try {
-        $sql = "DELETE FROM reservations WHERE id = :id";
-        $stmt = $pdo->prepare($sql);
-        $stmt->bindParam(':id', $delete_id);
-        if ($stmt->execute()) {
-            $msg = "Reservation record completely deleted.";
-            $msgType = "success";
-        }
-    } catch(PDOException $e) {
-        $msg = "Error deleting record: " . $e->getMessage();
-        $msgType = "error";
-    }
-}
-
-// Fetch all reservations
-try {
-    $stmt = $pdo->query("SELECT * FROM reservations ORDER BY created_at DESC");
-    $reservations = $stmt->fetchAll();
-} catch(PDOException $e) {
-    die("Database fetch error: " . $e->getMessage());
-}
+/* @var array $reservations */
+/* @var string $msg */
+/* @var string $msgType */
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -69,10 +35,10 @@ try {
 <body>
     <div class="sidebar">
         <div class="brand">Admin<br><span>Lor & Santos Hotel</span></div>
-        <a href="Home.php"><i class="fas fa-home" style="margin-right: 15px;"></i> Back to Website</a>
-        <a href="AdminDashboard.php" class="active"><i class="fas fa-tachometer-alt" style="margin-right: 15px;"></i> Dashboard (Read)</a>
+        <a href="index.php?page=home"><i class="fas fa-home" style="margin-right: 15px;"></i> Back to Website</a>
+        <a href="index.php?page=admin_dashboard" class="active"><i class="fas fa-tachometer-alt" style="margin-right: 15px;"></i> Dashboard </a>
         <div style="flex-grow: 1;"></div>
-        <a href="AdminLogout.php" style="color: #fda4af; border-top: 1px solid rgba(255,255,255,0.1);"><i class="fas fa-sign-out-alt" style="margin-right: 15px;"></i> Logout Securely</a>
+        <a href="index.php?page=admin_logout" style="color: #fda4af; border-top: 1px solid rgba(255,255,255,0.1);"><i class="fas fa-sign-out-alt" style="margin-right: 15px;"></i> Logout Securely</a>
     </div>
     
     <div class="main-content">
@@ -89,7 +55,7 @@ try {
                 </div>
             </div>
 
-            <?php if ($msg): ?>
+            <?php if (!empty($msg)): ?>
             <div class="alert alert-<?php echo $msgType; ?>">
                 <?php echo htmlspecialchars($msg); ?>
             </div>
@@ -128,10 +94,10 @@ try {
                                 </td>
                                 <td style="font-weight: 600;">₱<?php echo number_format($row['total_amount'], 2); ?></td>
                                 <td style="text-align: center;">
-                                    <a href="AdminEdit.php?id=<?php echo $row['id']; ?>" class="btn-small btn-primary" style="margin-right: 5px;" title="Edit Reservation">
+                                    <a href="index.php?page=admin_edit&id=<?php echo $row['id']; ?>" class="btn-small btn-primary" style="margin-right: 5px;" title="Edit Reservation">
                                         <i class="fas fa-edit"></i> Edit
                                     </a>
-                                    <a href="AdminDashboard.php?delete=<?php echo $row['id']; ?>" onclick="return confirm('Are you sure you want to completely delete this reservation? This cannot be undone.');" class="btn-small btn-danger" title="Delete record">
+                                    <a href="index.php?page=admin_dashboard&delete=<?php echo $row['id']; ?>" onclick="return confirm('Are you sure you want to completely delete this reservation? This cannot be undone.');" class="btn-small btn-danger" title="Delete record">
                                         <i class="fas fa-trash"></i>
                                     </a>
                                 </td>
